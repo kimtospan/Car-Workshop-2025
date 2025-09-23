@@ -38,9 +38,10 @@ function initAppointmentForm(formId, options = {}) {
             });
 
             if (response && response.success) {
-                // Notify caller and refresh table; handleFormSubmit already displays server success message
-                if (options.onSuccess) options.onSuccess(response);
-                refreshAppointmentsTable();
+                // Notify caller; caller always handles table refresh
+                if (options.onSuccess) {
+                    options.onSuccess(response);
+                }
             }
 
             if (window.__APP_DEBUG__) console.groupEnd();
@@ -346,6 +347,7 @@ function refreshAppointmentsTable() {
         const tbody = document.querySelector('#appointmentsTable tbody, .appointments-table tbody');
         
         if (tbody) {
+            tbody.classList.add('loading');
             tbody.innerHTML = '<tr><td colspan="8" class="text-center"><div class="spinner-border spinner-border-sm me-2"></div>Φόρτωση...</td></tr>';
         }
         
@@ -362,8 +364,24 @@ function refreshAppointmentsTable() {
                     if (typeof showError === 'function') {
                         showError('Σφάλμα κατά τη φόρτωση ραντεβού: ' + (data && data.message ? data.message : '')); 
                     }
+                    
+                    // Remove loading overlay and show error
+                    if (overlay) {
+                        overlay.classList.add('fade-out');
+                        setTimeout(() => overlay.remove(), 300);
+                    }
+                    
+                    const tbody = table?.querySelector('tbody');
                     if (tbody) {
-                        tbody.innerHTML = '<tr><td colspan="8" class="text-center text-danger">Σφάλμα φόρτωσης δεδομένων</td></tr>';
+                        tbody.classList.remove('loading');
+                        fadeOutAndReplace(tbody, `
+                            <tr class="fade-in">
+                                <td colspan="8" class="text-center text-danger py-4">
+                                    <i class="bi bi-exclamation-triangle fs-1 d-block mb-2"></i>
+                                    Σφάλμα φόρτωσης δεδομένων
+                                </td>
+                            </tr>
+                        `);
                     }
                 }
             })
@@ -372,8 +390,24 @@ function refreshAppointmentsTable() {
                 if (typeof showError === 'function') {
                     showError('Σφάλμα δικτύου κατά τη φόρτωση ραντεβού');
                 }
+                
+                // Remove loading overlay and show error
+                if (overlay) {
+                    overlay.classList.add('fade-out');
+                    setTimeout(() => overlay.remove(), 300);
+                }
+                
+                const tbody = table?.querySelector('tbody');
                 if (tbody) {
-                    tbody.innerHTML = '<tr><td colspan="8" class="text-center text-danger">Σφάλμα δικτύου</td></tr>';
+                    tbody.classList.remove('loading');
+                    fadeOutAndReplace(tbody, `
+                        <tr class="fade-in">
+                            <td colspan="8" class="text-center text-danger py-4">
+                                <i class="bi bi-wifi-off fs-1 d-block mb-2"></i>
+                                Σφάλμα δικτύου
+                            </td>
+                        </tr>
+                    `);
                 }
             })
             .finally(() => {
@@ -395,13 +429,34 @@ function refreshAppointmentsTable() {
  * Secretary can search by vehicle brand/model, serial number, customer name, or production year, with filter dropdown for sorting by brand, year, or customer name
  */
 function refreshVehiclesTable() {
+    // Use currentVehiclesPage if set, otherwise default to 1
+    window.currentVehiclesPage = window.currentVehiclesPage || 1;
+    const page = parseInt(window.currentVehiclesPage, 10) || 1;
+
+    const perPage = Math.min(5, parseInt(window.vehiclesPerPage || 5, 10));
+
+    // Build query params from current UI state
+    const params = new URLSearchParams();
+    params.set('page', page);
+    params.set('per_page', perPage);
+
     const searchQuery = document.getElementById('vehicle_search')?.value?.trim() || '';
-    const filterValue = document.getElementById('vehicle_filter')?.value || 'all';
-    
-    let endpoint = 'vehicles.php';
     if (searchQuery) {
-        endpoint += `?q=${encodeURIComponent(searchQuery)}`;
+        params.set('q', searchQuery);
     }
+
+    const filterValue = document.getElementById('vehicle_filter')?.value || 'all';
+    if (filterValue && filterValue !== 'all') {
+        if (filterValue.includes(':')) {
+            const [filterType, filterDirection] = filterValue.split(':');
+            params.set('sort', filterType);
+            if (filterDirection) {
+                params.set('order', filterDirection);
+            }
+        }
+    }
+
+    const endpoint = `vehicles.php?${params.toString()}`;
     
     refreshTable('vehiclesTable', endpoint, {
         onSuccess: (response) => {
@@ -414,9 +469,7 @@ function refreshVehiclesTable() {
             }
         }
     });
-}
-
-/**
+}/**
  * Refresh users table
  * Secretary can search by user name, username, or email, and filter by role (customer/mechanic/secretary) or status (active/inactive) with sorting options
  */
@@ -464,15 +517,30 @@ function updateAppointmentsTable(appointments, meta) {
     const tableBody = document.querySelector('#appointmentsTable tbody');
     if (!tableBody) return;
     
+    // Remove loading state
+    tableBody.classList.remove('loading');
+    
     if (!appointments || appointments.length === 0) {
-        tableBody.innerHTML = `
-            <tr>
-                <td colspan="8" class="text-center text-muted py-4">
-                    <i class="bi bi-calendar-x fs-1 d-block mb-2"></i>
-                    Δεν βρέθηκαν ραντεβού
-                </td>
-            </tr>
-        `;
+        // Smooth transition to empty state
+        if (typeof fadeOutAndReplace === 'function') {
+            fadeOutAndReplace(tableBody, `
+                <tr class="fade-in">
+                    <td colspan="8" class="text-center text-muted py-4">
+                        <i class="bi bi-calendar-x fs-1 d-block mb-2"></i>
+                        Δεν βρέθηκαν ραντεβού
+                    </td>
+                </tr>
+            `);
+        } else {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="8" class="text-center text-muted py-4">
+                        <i class="bi bi-calendar-x fs-1 d-block mb-2"></i>
+                        Δεν βρέθηκαν ραντεβού
+                    </td>
+                </tr>
+            `;
+        }
         return;
     }
     
@@ -485,8 +553,9 @@ function updateAppointmentsTable(appointments, meta) {
         return status === 'ΔΗΜΙΟΥΡΓΗΜΕΝΟ'; // Only allow cancellation for created appointments
     };
     
-    tableBody.innerHTML = appointments.map(appointment => `
-        <tr data-appointment-date="${escapeHtml(appointment.appointment_date || '')}">
+    // Create new rows with fade-in animation
+    const newRows = appointments.map(appointment => `
+        <tr class="fade-in" data-appointment-date="${escapeHtml(appointment.appointment_date || '')}">
             <td>${escapeHtml(String(appointment.id || ''))}</td>
             <td>${escapeHtml(appointment.customer_name || 'Άγνωστος')}</td>
             <td>${escapeHtml((appointment.brand || '') + ' ' + (appointment.model || ''))}</td>
@@ -511,6 +580,10 @@ function updateAppointmentsTable(appointments, meta) {
         </tr>
     `).join('');
     
+   
+        fadeOutAndReplace(tableBody, newRows);
+    
+    
     // Update pagination if meta is provided
     if (meta) {
         updatePagination('appointmentsPagination', meta);
@@ -521,22 +594,35 @@ function updateVehiclesTable(vehicles, meta, filterValue = 'all') {
     const tableBody = document.querySelector('#vehiclesTable tbody');
     if (!tableBody) return;
     
+    // Remove loading state
+    tableBody.classList.remove('loading');
+    
     if (!vehicles || vehicles.length === 0) {
-        tableBody.innerHTML = `
-            <tr>
-                <td colspan="6" class="text-center text-muted py-4">
-                    <i class="bi bi-car-front fs-1 d-block mb-2"></i>
-                    Δεν βρέθηκαν οχήματα
-                </td>
-            </tr>
-        `;
+       
+            fadeOutAndReplace(tableBody, `
+                <tr class="fade-in">
+                    <td colspan="6" class="text-center text-muted py-4">
+                        <i class="bi bi-car-front fs-1 d-block mb-2"></i>
+                        Δεν βρέθηκαν οχήματα
+                    </td>
+                </tr>
+            `);
+       
         return;
     }
     
     // Apply client-side filtering/sorting based on filterValue
     let processedVehicles = applyVehicleFilterAndSort([...vehicles], filterValue);
     
-    tableBody.innerHTML = processedVehicles.map(vehicle => renderVehicleRow(vehicle)).join('');
+    // Create new rows with fade-in animation
+    const newRows = processedVehicles.map(vehicle => {
+        const row = renderVehicleRow(vehicle);
+        return row.replace('<tr>', '<tr class="fade-in">');
+    }).join('');
+    
+    
+        fadeOutAndReplace(tableBody, newRows);
+    
     
     if (meta) {
         updatePagination('vehiclesPagination', meta);
@@ -611,21 +697,26 @@ function updateUsersTable(payload, meta) {
     const tableBody = document.querySelector('#usersTable tbody');
     if (!tableBody) return;
     
+    // Remove loading state
+    tableBody.classList.remove('loading');
+    
     if (!users || users.length === 0) {
-        tableBody.innerHTML = `
-            <tr>
-                <td colspan="8" class="text-center text-muted py-4">
-                    <i class="bi bi-people fs-1 d-block mb-2"></i>
-                    No users found
-                </td>
-            </tr>
-        `;
+        
+            fadeOutAndReplace(tableBody, `
+                <tr class="fade-in">
+                    <td colspan="8" class="text-center text-muted py-4">
+                        <i class="bi bi-people fs-1 d-block mb-2"></i>
+                        No users found
+                    </td>
+                </tr>
+            `);
+        
         return;
     }
 
-    
-    tableBody.innerHTML = users.map(user => `
-        <tr>
+    // Create new rows with fade-in animation
+    const newRows = users.map(user => `
+        <tr class="fade-in">
             <td>${user.id}</td>
             <td>${user.first_name} ${user.last_name}</td>
             <td>${user.username}</td>
@@ -652,6 +743,10 @@ function updateUsersTable(payload, meta) {
             </td>
         </tr>
     `).join('');
+
+    
+        fadeOutAndReplace(tableBody, newRows);
+    
 
     // Update pagination controls if meta provided
     if (meta) {
@@ -1177,26 +1272,28 @@ function updatePagination(containerId, meta) {
     if (!container || !meta) return;
     
     const { page, total_pages, has_more } = meta;
+    const currentPage = parseInt(page) || 1;
+    const totalPages = parseInt(total_pages) || 1;
     
     let paginationHTML = '<nav><ul class="pagination pagination-sm justify-content-center">';
     
     // Previous button
     paginationHTML += `
-        <li class="page-item ${page <= 1 ? 'disabled' : ''}">
-            <a class="page-link" href="#" onclick="changePage(${page - 1}, '${containerId}')">
+        <li class="page-item ${currentPage <= 1 ? 'disabled' : ''}">
+            <a class="page-link" href="#" onclick="changePage(${currentPage - 1}, '${containerId}'); return false;">
                 <i class="bi bi-chevron-left"></i>
             </a>
         </li>
     `;
     
     // Page numbers 
-    const startPage = Math.max(1, page - 2);
-    const endPage = Math.min(total_pages, page + 2);
+    const startPage = Math.max(1, currentPage - 2);
+    const endPage = Math.min(totalPages, currentPage + 2);
     
     for (let i = startPage; i <= endPage; i++) {
         paginationHTML += `
-            <li class="page-item ${i === page ? 'active' : ''}">
-                <a class="page-link" href="#" onclick="changePage(${i}, '${containerId}')">${i}</a>
+            <li class="page-item ${i === currentPage ? 'active' : ''}">
+                <a class="page-link" href="#" onclick="changePage(${i}, '${containerId}'); return false;">${i}</a>
             </li>
         `;
     }
@@ -1204,7 +1301,7 @@ function updatePagination(containerId, meta) {
     // Next button
     paginationHTML += `
         <li class="page-item ${!has_more ? 'disabled' : ''}">
-            <a class="page-link" href="#" onclick="changePage(${page + 1}, '${containerId}')">
+            <a class="page-link" href="#" onclick="changePage(${currentPage + 1}, '${containerId}'); return false;">
                 <i class="bi bi-chevron-right"></i>
             </a>
         </li>
@@ -1227,6 +1324,14 @@ function changePage(page, containerId = 'appointmentsPagination') {
         window.currentUsersPage = page;
         if (typeof refreshUsersTable === 'function') {
             refreshUsersTable();
+            return;
+        }
+    }
+    
+    if (containerId === 'vehiclesPagination') {
+        window.currentVehiclesPage = page;
+        if (typeof refreshVehiclesTable === 'function') {
+            refreshVehiclesTable();
             return;
         }
     }
@@ -2016,6 +2121,65 @@ function safeHideModal(modalElement) {
     }
 }
 
+/**
+ * Smooth transition helper for table content updates
+ */
+function fadeOutAndReplace(element, newContent) {
+    // Add loading class for smooth transition
+    element.style.opacity = '0.5';
+    element.style.transition = 'opacity 0.2s ease';
+    
+    setTimeout(() => {
+        element.innerHTML = newContent;
+        element.style.opacity = '1';
+        
+        // Trigger fade-in animation for new rows
+        const newRows = element.querySelectorAll('.fade-in');
+        newRows.forEach((row, index) => {
+            row.style.animationDelay = `${index * 0.05}s`;
+        });
+    }, 150);
+}
+
+/**
+ * Create loading overlay for tables
+ */
+function createTableLoadingOverlay(table) {
+    const container = table.parentElement;
+    if (!container.classList.contains('table-container')) {
+        container.classList.add('table-container');
+    }
+    
+    const overlay = document.createElement('div');
+    overlay.className = 'table-loading-overlay';
+    overlay.innerHTML = `
+        <div class="text-center">
+            <div class="spinner-border spinner-border-sm me-2" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <span>Φόρτωση...</span>
+        </div>
+    `;
+    
+    container.appendChild(overlay);
+    return overlay;
+}
+
+/**
+ * Show smooth loading state for table
+ */
+function showTableLoading(tableSelector) {
+    const table = document.querySelector(tableSelector);
+    if (!table) return null;
+    
+    const tbody = table.querySelector('tbody');
+    if (tbody) {
+        tbody.classList.add('loading');
+    }
+    
+    return createTableLoadingOverlay(table);
+}
+
 // Make viewVehicle function available globally
 window.viewVehicle = viewVehicle;
 // Make cleanup functions available globally
@@ -2025,6 +2189,9 @@ window.safeHideModal = safeHideModal;
 window.refreshAppointmentsTable = refreshAppointmentsTable;
 window.refreshVehiclesTable = refreshVehiclesTable;
 window.refreshUsersTable = refreshUsersTable;
+// Make table transition helpers available globally
+window.fadeOutAndReplace = fadeOutAndReplace;
+window.showTableLoading = showTableLoading;
 
 // Add global event listener for modal cleanup
 document.addEventListener('DOMContentLoaded', function() {

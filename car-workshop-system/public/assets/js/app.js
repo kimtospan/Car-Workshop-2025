@@ -426,12 +426,15 @@ async function handleFormSubmit(form, options = {}) {
 
 
 async function refreshTable(tableId, endpoint, options = {}) {
-    const tableContainer = document.getElementById(tableId);
-    if (!tableContainer) return;
+    const table = document.getElementById(tableId) || document.querySelector(`#${tableId}`);
+    if (!table) return;
+    
+    const tbody = table.querySelector('tbody');
+    if (tbody) {
+        tbody.classList.add('loading');
+    }
     
     try {
-        showLoading(tableContainer, 'Refreshing data...');
-        
         const response = await fetchAPI(endpoint, {
             method: 'GET',
             data: options.params
@@ -444,8 +447,19 @@ async function refreshTable(tableId, endpoint, options = {}) {
     } catch (error) {
         if (window.__APP_DEBUG__) console.error('Table refresh error:', error);
         showError('Failed to refresh data');
-    } finally {
-        hideLoading(tableContainer);
+        
+        if (tbody) {
+            tbody.classList.remove('loading');
+
+                fadeOutAndReplace(tbody, `
+                    <tr class="fade-in">
+                        <td colspan="8" class="text-center text-danger py-4">
+                            <i class="bi bi-exclamation-triangle fs-1 d-block mb-2"></i>
+                            Σφάλμα φόρτωσης δεδομένων
+                        </td>
+                    </tr>
+                `);
+        }
     }
 }
 

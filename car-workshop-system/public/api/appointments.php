@@ -123,7 +123,8 @@ function handleGet() {
                 'total' => $totalCount,
                 'page' => $page,
                 'per_page' => $perPage,
-                'total_pages' => ceil($totalCount / $perPage)
+                'total_pages' => ceil($totalCount / $perPage),
+                'has_more' => $page < ceil($totalCount / $perPage)
             ];
 
             sendSuccess('Appointments retrieved successfully', $appointments, $meta);
@@ -177,7 +178,8 @@ function handleGet() {
                 'total' => $totalCount,
                 'page' => $page,
                 'per_page' => $perPage,
-                'total_pages' => ceil($totalCount / $perPage)
+                'total_pages' => ceil($totalCount / $perPage),
+                'has_more' => $page < ceil($totalCount / $perPage)
             ];
             
             sendSuccess('Mechanic appointments retrieved successfully', $appointments, $meta);
@@ -230,7 +232,8 @@ function handleGet() {
                 'total' => $totalCount,
                 'page' => $page,
                 'per_page' => $perPage,
-                'total_pages' => ceil($totalCount / $perPage)
+                'total_pages' => ceil($totalCount / $perPage),
+                'has_more' => $page < ceil($totalCount / $perPage)
             ];
             
             sendSuccess('Secretary appointments retrieved successfully', $appointments, $meta);

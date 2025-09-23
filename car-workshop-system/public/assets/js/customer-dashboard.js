@@ -34,19 +34,15 @@ function initCustomerDashboard() {
 
 function initFormHandling() {
     // Initialize appointment form using forms.js 
-    if (typeof window.initAppointmentForm === 'function') {
-        window.initAppointmentForm('customerAppointmentForm', {
-            endpoint: 'appointments.php',
-            onSuccess: (response) => {
-                if (typeof window.refreshAppointmentsTable === 'function') window.refreshAppointmentsTable();
-            },
-            onError: (error) => {
-                showError('Σφάλμα κατά το κλείσιμο του ραντεβού: ' + error.message);
-            }
-        });
-    } else {
-        if (window.__APP_DEBUG__) console.error('forms.js initAppointmentForm not available');
-    }
+    window.initAppointmentForm('customerAppointmentForm', {
+        endpoint: 'appointments.php',
+        onSuccess: (response) => {
+            window.refreshAppointmentsTable();
+        },
+        onError: (error) => {
+            showError('Σφάλμα κατά το κλείσιμο του ραντεβού: ' + error.message);
+        }
+    });
 
     // Initialize vehicle form using forms.js
     if (typeof window.initVehicleForm === 'function') {

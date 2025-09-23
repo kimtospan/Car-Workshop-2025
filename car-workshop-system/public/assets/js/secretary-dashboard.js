@@ -76,42 +76,42 @@ function validateUserForm(form) {
     const role = form.querySelector('[name="role"]');
     const idNumber = form.querySelector('[name="id_number"]');
     // Clear previous field errors
-    try { if (typeof clearFieldErrors === 'function') clearFieldErrors(form); } catch (_) {}
+    clearFieldErrors(form);
     let valid = true;
     
     // Basic validation
     if (!firstName.value.trim()) {
-        try { if (typeof setFieldError === 'function') setFieldError(firstName, 'Παρακαλώ εισάγετε όνομα'); } catch (_) {}
+        setFieldError(firstName, 'Παρακαλώ εισάγετε όνομα');
         firstName.focus();
         valid = false;
     }
     
     if (!lastName.value.trim()) {
-        try { if (typeof setFieldError === 'function') setFieldError(lastName, 'Παρακαλώ εισάγετε επώνυμο'); } catch (_) {}
+        setFieldError(lastName, 'Παρακαλώ εισάγετε επώνυμο');
         lastName.focus();
         valid = false;
     }
     
     if (!username.value.trim() || username.value.length < 3) {
-        try { if (typeof setFieldError === 'function') setFieldError(username, 'Το username πρέπει να έχει τουλάχιστον 3 χαρακτήρες'); } catch (_) {}
+        setFieldError(username, 'Το username πρέπει να έχει τουλάχιστον 3 χαρακτήρες');
         username.focus();
         valid = false;
     }
     
     if (!isValidEmail(email.value)) {
-        try { if (typeof setFieldError === 'function') setFieldError(email, 'Παρακαλώ εισάγετε έγκυρη διεύθυνση email'); } catch (_) {}
+        setFieldError(email, 'Παρακαλώ εισάγετε έγκυρη διεύθυνση email');
         email.focus();
         valid = false;
     }
     
     if (!password.value || password.value.length < 6) {
-        try { if (typeof setFieldError === 'function') setFieldError(password, 'Ο κωδικός πρέπει να έχει τουλάχιστον 6 χαρακτήρες'); } catch (_) {}
+        setFieldError(password, 'Ο κωδικός πρέπει να έχει τουλάχιστον 6 χαρακτήρες');
         password.focus();
         valid = false;
     }
     
     if (!role.value) {
-        try { if (typeof setFieldError === 'function') setFieldError(role, 'Παρακαλώ επιλέξτε ρόλο χρήστη'); } catch (_) {}
+        setFieldError(role, 'Παρακαλώ επιλέξτε ρόλο χρήστη');
         role.focus();
         valid = false;
     }
@@ -120,11 +120,11 @@ function validateUserForm(form) {
     if (idNumber) {
         const v = (idNumber.value || '').trim();
         if (!v) {
-            try { if (typeof setFieldError === 'function') setFieldError(idNumber, 'Ο αριθμός ταυτότητας (ΑΤ) είναι υποχρεωτικός'); } catch (_) {}
+            setFieldError(idNumber, 'Ο αριθμός ταυτότητας (ΑΤ) είναι υποχρεωτικός');
             idNumber.focus();
             valid = false;
         } else if (!isValidIdNumber(v)) {
-            try { if (typeof setFieldError === 'function') setFieldError(idNumber, 'Ο αριθμός ταυτότητας πρέπει να είναι μορφής ΑΤ123456'); } catch (_) {}
+            setFieldError(idNumber, 'Ο αριθμός ταυτότητας πρέπει να είναι μορφής ΑΤ123456');
             idNumber.focus();
             valid = false;
         }
@@ -134,7 +134,7 @@ function validateUserForm(form) {
     if (role.value === 'mechanic') {
         const specialty = form.querySelector('[name="specialty"]');
         if (specialty && !specialty.value.trim()) {
-            try { if (typeof setFieldError === 'function') setFieldError(specialty, 'Η ειδικότητα είναι υποχρεωτική για μηχανικούς'); } catch (_) {}
+            setFieldError(specialty, 'Η ειδικότητα είναι υποχρεωτική για μηχανικούς');
             specialty.focus();
             valid = false;
         }
@@ -142,12 +142,12 @@ function validateUserForm(form) {
         const afm = form.querySelector('[name="afm"]');
         const address = form.querySelector('[name="address"]');
         if (afm && !isValidAFM(afm.value)) {
-            try { if (typeof setFieldError === 'function') setFieldError(afm, 'Το ΑΦΜ πρέπει να αποτελείται από 9 ψηφία'); } catch (_) {}
+            setFieldError(afm, 'Το ΑΦΜ πρέπει να αποτελείται από 9 ψηφία');
             afm.focus();
             valid = false;
         }
         if (address && !address.value.trim()) {
-            try { if (typeof setFieldError === 'function') setFieldError(address, 'Η διεύθυνση είναι υποχρεωτική για πελάτες'); } catch (_) {}
+            setFieldError(address, 'Η διεύθυνση είναι υποχρεωτική για πελάτες');
             address.focus();
             valid = false;
         }
@@ -260,19 +260,17 @@ function initSearchAndFiltering() {
     
     if (vehicleSearchInput) {
         const debouncedVehicleSearch = debounce(function() {
-            const q = vehicleSearchInput.value.trim();
-            const endpoint = q ? `vehicles.php?q=${encodeURIComponent(q)}` : 'vehicles.php';
-            refreshTable('vehiclesTable', endpoint, {
-                onSuccess: (response) => {
-                    updateVehiclesTable(response.data, response.meta);
-                }
-            });
+            // Reset to first page when starting a new search so results appear on page 1
+            window.currentVehiclesPage = 1;
+            refreshVehiclesTable();
         }, 300);
         vehicleSearchInput.addEventListener('input', debouncedVehicleSearch);
     }
 
     if (vehicleFilterSelect) {
         vehicleFilterSelect.addEventListener('change', function() {
+            
+            window.currentVehiclesPage = 1;
             refreshVehiclesTable();
         });
     }

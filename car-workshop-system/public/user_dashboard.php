@@ -690,20 +690,6 @@ try {
         if (dateInput) {
             dateInput.addEventListener('change', updateCustomerTimeSlots);
         }
-        
-        // Delay table refreshes to avoid interference with modal 
-        setTimeout(() => {
-            try {
-                if (typeof refreshAppointmentsTable === 'function') {
-                    refreshAppointmentsTable();
-                }
-                if (typeof refreshVehiclesTable === 'function') {
-                    refreshVehiclesTable();
-                }
-            } catch (e) {
-                if (window.__APP_DEBUG__) console.warn('Table refresh functions failed:', e);
-            }
-        }, 1000);
     });
     </script>
 </body>

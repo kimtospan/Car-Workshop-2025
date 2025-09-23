@@ -148,7 +148,7 @@ function initProfileForm() {
         // Validate email format (only validate the profile's email field)
         if (email && !isValidEmail(email.value)) {
             // Prefer per-field feedback if helpers exist
-            try { if (typeof setFieldError === 'function') setFieldError(email, 'Παρακαλώ εισάγετε έγκυρη διεύθυνση email'); } catch (_) {}
+            setFieldError(email, 'Παρακαλώ εισάγετε έγκυρη διεύθυνση email');
             // Fallback to global alert
             showError('Παρακαλώ εισάγετε έγκυρη διεύθυνση email');
             if (typeof email.focus === 'function') email.focus();
