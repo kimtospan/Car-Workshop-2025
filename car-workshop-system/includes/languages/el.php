@@ -69,6 +69,13 @@ return [
     'check_connection' => 'Παρακαλώ ελέγξτε τη σύνδεσή σας και δοκιμάστε ξανά.',
     'logout_successful' => 'Αποσυνδεθήκατε επιτυχώς.',
     
+    // Authentication Error Messages
+    'account_locked' => 'Ο λογαριασμός είναι προσωρινά κλειδωμένος λόγω πολλαπλών αποτυχημένων προσπαθειών.',
+    'invalid_credentials' => 'Μη έγκυρο email ή κωδικός πρόσβασης.',
+    'account_suspended' => 'Ο λογαριασμός είναι απενεργοποιημένος. Επικοινωνήστε με την υποστήριξη.',
+    'login_error' => 'Παρουσιάστηκε σφάλμα κατά τη σύνδεση. Παρακαλώ δοκιμάστε ξανά.',
+    'profile_updated_successfully' => 'Το προφίλ ενημερώθηκε επιτυχώς!',
+    
     // Registration Form
     'enter_username' => 'Εισάγετε όνομα χρήστη',
     'username_requirements' => '3-20 χαρακτήρες (γράμματα, αριθμοί, _)',

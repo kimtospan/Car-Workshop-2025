@@ -130,6 +130,7 @@ async function fetchAPI(endpoint, options = {}) {
     const contentType = (response.headers.get('content-type') || '').toLowerCase();
 
     // If API returned HTML (likely login page), redirect to login
+    // Legacy, dont remember why i put this.
     const isApiCall = url.includes(Config.apiBase) || url.includes('/api/');
     if (isApiCall && contentType.includes('text/html')) {
         window.location.href = 'login.php';
@@ -528,9 +529,9 @@ function debounce(func, wait) {
 }
 
 // Export debounce explicitly so other scripts can rely on window.debounce
-try {
-    if (typeof window !== 'undefined') window.debounce = debounce;
-} catch (_) {}
+window.debounce = debounce;
+
+
 
 function initApp() {
     if (window.__APP_DEBUG__) console.log('Car Workshop App initialized');

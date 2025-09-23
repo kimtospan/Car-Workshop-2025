@@ -3,6 +3,7 @@
 
 require_once __DIR__ . '/../src/config/AppConfig.php';
 require_once __DIR__ . '/../src/config/database.php';
+require_once __DIR__ . '/language.php';
 
 class AuthMiddleware {
 	// Session and security settings
@@ -204,7 +205,7 @@ class AuthMiddleware {
 
 		try {
 			if ($this->isLockedOut($email)) {
-				$result['message'] = 'Account temporarily locked due to multiple failed attempts.';
+				$result['message'] = t('account_locked');
 				return $result;
 			}
 
@@ -215,12 +216,12 @@ class AuthMiddleware {
 
 			if (!$user || !password_verify($password, $user['password'])) {
 				$this->recordFailedLogin($email);
-				$result['message'] = 'Invalid email or password.';
+				$result['message'] = t('invalid_credentials');
 				return $result;
 			}
 
 			if ($user['status'] !== 'active') {
-				$result['message'] = 'Account is suspended. Contact support.';
+				$result['message'] = t('account_suspended');
 				return $result;
 			}
 
@@ -228,12 +229,12 @@ class AuthMiddleware {
 			$this->clearFailedLogins($email);
 
 			$result['success'] = true;
-			$result['message'] = 'Login successful';
+			$result['message'] = t('login_successful');
 			$result['redirect'] = $this->getRedirectUrl($user['role']);
 			return $result;
 		} catch (Exception $e) {
 			error_log('Login error: ' . $e->getMessage());
-			$result['message'] = 'An error occurred during login. Please try again.';
+			$result['message'] = t('login_error');
 			return $result;
 		}
 	}

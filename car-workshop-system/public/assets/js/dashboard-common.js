@@ -377,15 +377,7 @@ function submitProfileForm(form, userRole) {
 
 
 function debounce(func, wait) {
-    try {
-        if (typeof window !== 'undefined' && typeof window.debounce === 'function') {
-            return window.debounce(func, wait);
-        }
-    } catch (e) {
-        if (window.__APP_DEBUG__) console.error('Debounce delegation error:', e);
-    }
-
-    // This keeps failing so just implement it again. Maybe app.js loads too late
+    
     let timeout;
     return function executedFunction(...args) {
         const context = this;

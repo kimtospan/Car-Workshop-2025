@@ -69,6 +69,13 @@ return [
     'check_connection' => 'Please check your connection and try again.',
     'logout_successful' => 'You have been successfully logged out.',
     
+    // Authentication Error Messages
+    'account_locked' => 'Account temporarily locked due to multiple failed attempts.',
+    'invalid_credentials' => 'Invalid email or password.',
+    'account_suspended' => 'Account is suspended. Contact support.',
+    'login_error' => 'An error occurred during login. Please try again.',
+    'profile_updated_successfully' => 'Profile updated successfully!',
+    
     // Registration Form
     'enter_username' => 'Enter username',
     'username_requirements' => '3-20 characters (letters, numbers, _)',

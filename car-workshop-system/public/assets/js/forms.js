@@ -2122,23 +2122,17 @@ function safeHideModal(modalElement) {
 }
 
 /**
- * Smooth transition helper for table content updates
+ * Simple, clean table content replacement
  */
 function fadeOutAndReplace(element, newContent) {
-    // Add loading class for smooth transition
-    element.style.opacity = '0.5';
-    element.style.transition = 'opacity 0.2s ease';
+    // Simple opacity transition without complex animations
+    element.style.transition = 'opacity 0.15s ease';
+    element.style.opacity = '0.7';
     
     setTimeout(() => {
         element.innerHTML = newContent;
         element.style.opacity = '1';
-        
-        // Trigger fade-in animation for new rows
-        const newRows = element.querySelectorAll('.fade-in');
-        newRows.forEach((row, index) => {
-            row.style.animationDelay = `${index * 0.05}s`;
-        });
-    }, 150);
+    }, 80);
 }
 
 /**

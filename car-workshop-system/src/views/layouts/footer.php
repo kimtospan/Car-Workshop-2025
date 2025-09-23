@@ -51,7 +51,7 @@ function renderFooter($lang) {
             <hr class="my-4 border-secondary">
             <div class="row">
                 <div class="col-12 text-center">
-                    <p class="mb-0 text-muted">
+                    <p class="mb-0 ">
                         &copy; <?= date('Y') ?> <?= t('workshop_title') ?>. <?= t('all_rights_reserved') ?>
                     </p>
                 </div>
