@@ -1,0 +1,4 @@
+username,email,password,first_name,last_name,id_number,role,afm,address,specialty
+jdoe,jdoe@example.com,Secret123,John,Doe,AT123456,customer,123456789,"Kaftou St 12",
+asmith,not-an-email,,Alice,Smith,,customer,987654321,"Some St 5",
+mbrown,mbrown@example.com,MechPass1,Michael,Brown,AT654321,mechanic,,,"Engine specialist"

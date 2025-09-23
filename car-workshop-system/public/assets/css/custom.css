@@ -1,0 +1,40 @@
+/* Ensure footer sticks to bottom.  */
+html, body {
+    height: 100%;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    background-color: #f8f9fa;
+}
+
+main {
+    flex: 1;
+}
+
+/* Footer styling improvements */
+footer {
+    margin-top: auto !important;
+}
+
+
+.portfolio-profile-container {
+    background: linear-gradient(135deg, #787c8d 0%, #572484 100%);
+    color: white;
+    margin: -2rem -15px 2rem -15px;
+    padding: 2rem 15px;
+    border-radius: 0 0 15px 15px;
+}
+
+.portfolio-profile-container h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.portfolio-profile-container p {
+    font-size: 1.1rem;
+    opacity: 0.9;
+}

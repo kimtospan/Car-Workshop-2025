@@ -1,0 +1,4 @@
+serial_number,brand,model,vehicle_type,engine_type,door_count,wheel_count,production_date,acquisition_year,afm
+SN2001,Skoda,Octavia,επιβατικό,πετρελαιοκίνητο,4,4,2017-03-12,2017,111222333
+HHIIIIII,BMW,320i,επιβατικό,not_a_valid_engine,-1,4,2019-15-78,2019,444555666
+SN2003,Renault,Zoe,επιβατικό,πετρελαιοκίνητο,4,4,2020-11-25,2020,111222333

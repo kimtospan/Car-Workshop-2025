@@ -1,0 +1,4 @@
+username,email,password,first_name,last_name,id_number,role,afm,address,specialty
+elena_pap,elena.pap@example.com,Pass1234,Elena,Papadopoulou,AT998877,customer,111222333,"10 Acropolis St",
+thomas.k,thomas.k_at_example.com,,Thomas,Kotsis,,custumer,notanumber,"22 Marathon Ave",
+nikos_m,nikos.m@example.com,MechPass2025,Nikos,Mylonas,AT777888,mechanic,,,"Transmission specialist"

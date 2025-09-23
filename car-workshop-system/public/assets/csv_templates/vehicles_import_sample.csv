@@ -1,0 +1,4 @@
+serial_number,brand,model,vehicle_type,engine_type,door_count,wheel_count,production_date,acquisition_year,afm
+SN1001,Toyota,Corolla,επιβατικό,πετρελαιοκίνητο,4,4,2015-04-20,2015,123456789
+SN1002,Honda,Civic,sedan,petrol,4,4,2016-05-15,2016,123456789
+SN1003,Nissan,Leaf,επιβατικό,ηλεκτροκίνητο,4,4,2018-09-10,2018,987654321
